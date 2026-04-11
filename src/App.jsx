@@ -382,33 +382,21 @@ function HeroSection() {
       padding: '120px 32px 80px', textAlign: 'center', overflow: 'hidden',
     }}>
       <ParticleField />
+      {/* Concept badge — top right corner */}
+      <div style={{
+        position: 'absolute', top: 56, right: 24, zIndex: 10,
+        padding: '6px 14px', borderRadius: 20,
+        background: 'rgba(0,180,216,0.08)', border: '1px solid rgba(0,180,216,0.2)',
+        fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase',
+        color: C.cyan, opacity: 0.8,
+      }}>
+        Concept · Satellite Spectral Intelligence
+      </div>
       <div style={{
         position: 'relative', zIndex: 2,
         opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)',
         transition: 'all 1.2s ease',
       }}>
-        {/* Concept banner */}
-        <div style={{
-          display: 'inline-block', padding: '8px 20px', borderRadius: 8,
-          background: 'rgba(244,162,97,0.12)', border: '1px solid rgba(244,162,97,0.3)',
-          fontSize: 13, fontWeight: 600, color: C.amber, marginBottom: 20,
-          maxWidth: 700, lineHeight: 1.6,
-        }}>
-          ⚠ CONCEPT DEMONSTRATION — This page visualizes a <em>theoretical future capability</em>.
-          The satellite monitoring pipeline, flux estimates, and dashboard data shown are simulated.
-          No operational satellite-based plastic flux monitoring system exists today.
-          <span style={{ display: 'block', marginTop: 4, fontSize: 12, color: C.dim }}>
-            See "Scientific Reality Check" section for detailed analysis of current capabilities and limitations.
-          </span>
-        </div>
-        <div style={{
-          display: 'inline-block', padding: '6px 16px', borderRadius: 20,
-          background: 'rgba(0,180,216,0.1)', border: '1px solid rgba(0,180,216,0.2)',
-          fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
-          color: C.cyan, marginBottom: 24,
-        }}>
-          Concept · Satellite Spectral Intelligence
-        </div>
         <h1 style={{
           fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 800, lineHeight: 1.1,
           letterSpacing: '-0.02em', marginBottom: 20, maxWidth: 900,
@@ -420,15 +408,9 @@ function HeroSection() {
         </h1>
         <p style={{
           fontSize: 'clamp(16px, 2vw, 20px)', color: C.muted, maxWidth: 700,
-          lineHeight: 1.6, marginBottom: 16,
+          lineHeight: 1.6, marginBottom: 48,
         }}>
           A concept for tracing 11 million tons of plastic from source to sea using satellite spectral intelligence
-        </p>
-        <p style={{
-          fontSize: 'clamp(13px, 1.5vw, 15px)', color: C.amber, maxWidth: 600,
-          lineHeight: 1.6, marginBottom: 48, fontStyle: 'italic',
-        }}>
-          The problem is real. The monitoring vision shown here represents where the science could go — not where it is today.
         </p>
 
         <div style={{
@@ -644,7 +626,10 @@ function MonitoringComparison() {
     { metric: 'Coverage', trad: 'Point samples', sat: 'Continental scale', satWin: true },
     { metric: 'Labor', trad: '10+ field staff', sat: 'Automated processing', satWin: true },
     { metric: 'Latency', trad: 'Months to report', sat: 'Near real-time', satWin: true },
-    { metric: 'Resolution', trad: 'High (microscopy)', sat: 'Moderate (10m pixels)', satWin: false },
+    { metric: 'Spatial Resolution', trad: 'Sub-millimeter (microscopy)', sat: '20m pixels (SWIR) to 1km (PACE)', satWin: false },
+    { metric: 'Min. Detection Size', trad: '1 μm (lab analysis)', sat: '~5×5m aggregation (Topouzelis 2019)', satWin: false },
+    { metric: 'Microplastic Detection', trad: 'Yes (FTIR/Raman spectroscopy)', sat: 'No — physically undetectable at <5mm', satWin: false },
+    { metric: 'Signal Specificity', trad: 'Chemical ID per particle', sat: 'Ambiguous — foam, algae, wood overlap', satWin: false },
   ]
 
   return (
@@ -799,7 +784,8 @@ function SpectralChart() {
   )
 }
 
-function SensorCard({ sensor, index, visible }) {
+function SensorCard({ sensor, index, visible, }) {
+  const [showCaveat, setShowCaveat] = useState(false)
   // Mini sparkline
   const sparkData = Array.from({length: 20}, () => Math.random())
   const sparkW = 120, sparkH = 30
@@ -822,14 +808,39 @@ function SensorCard({ sensor, index, visible }) {
           <span style={{ color: C.dim }}>Revisit: <span style={{ color: C.white }}>{sensor.revisit}</span></span>
         </div>
         {sensor.caveat && (
-          <div style={{ fontSize: 11, color: C.amber, marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
-            ⚠ {sensor.caveat}
+          <div style={{ marginTop: 6 }}>
+            <span onClick={(e) => { e.stopPropagation(); setShowCaveat(!showCaveat) }}
+              style={{ fontSize: 11, color: C.amber, cursor: 'pointer', opacity: 0.7, userSelect: 'none' }}>
+              {showCaveat ? '▾' : '▸'} limitations
+            </span>
+            {showCaveat && (
+              <div style={{ fontSize: 11, color: C.amber, marginTop: 4, lineHeight: 1.5, opacity: 0.8 }}>
+                {sensor.caveat}
+              </div>
+            )}
           </div>
         )}
       </div>
       <svg width={sparkW} height={sparkH} style={{ flexShrink: 0 }}>
         <path d={sparkPath} fill="none" stroke={sensor.color} strokeWidth="1.5" opacity="0.7" />
       </svg>
+    </div>
+  )
+}
+
+function PipelineCaveat({ text }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ marginTop: 4 }}>
+      <span onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
+        style={{ fontSize: 11, color: C.amber, cursor: 'pointer', opacity: 0.7, userSelect: 'none' }}>
+        {open ? '▾' : '▸'} caveats
+      </span>
+      {open && (
+        <div style={{ fontSize: 11, color: C.amber, marginTop: 4, lineHeight: 1.5, opacity: 0.8 }}>
+          {text}
+        </div>
+      )}
     </div>
   )
 }
@@ -869,11 +880,7 @@ function DetectionPipeline() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, color: C.white, fontSize: 15 }}>{step.title}</div>
               <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{step.desc}</div>
-              {step.caveat && (
-                <div style={{ fontSize: 11, color: C.amber, marginTop: 6, lineHeight: 1.5, fontStyle: 'italic', borderTop: '1px solid rgba(244,162,97,0.1)', paddingTop: 6 }}>
-                  ⚠ {step.caveat}
-                </div>
-              )}
+              {step.caveat && <PipelineCaveat text={step.caveat} />}
             </div>
             {/* Mini visual for each step */}
             <svg width="60" height="40" style={{ flexShrink: 0, opacity: 0.5 }}>
@@ -905,6 +912,33 @@ function DetectionPipeline() {
   )
 }
 
+function SolutionCaveat({ text }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ position: 'relative', flexShrink: 0 }}>
+      <button onClick={() => setOpen(!open)} style={{
+        background: 'rgba(244,162,97,0.08)', border: '1px solid rgba(244,162,97,0.2)',
+        borderRadius: 6, padding: '4px 10px', cursor: 'pointer',
+        fontSize: 11, color: C.amber, fontWeight: 600, whiteSpace: 'nowrap',
+        display: 'flex', alignItems: 'center', gap: 4,
+      }}>
+        ⚠ Caveats <span style={{ fontSize: 9, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : '' }}>▾</span>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', right: 0, top: '100%', marginTop: 6, zIndex: 20,
+          width: 320, padding: '12px 14px', borderRadius: 8,
+          background: 'rgba(26,26,46,0.97)', border: '1px solid rgba(244,162,97,0.2)',
+          backdropFilter: 'blur(12px)', fontSize: 12, color: C.amber, lineHeight: 1.6,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+        }}>
+          {text}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SolutionSection() {
   const [ref, visible] = useScrollReveal()
 
@@ -923,33 +957,21 @@ function SolutionSection() {
       <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 16, color: C.white }}>
         Satellite Spectral Monitoring
       </h2>
-      <p style={{ color: C.muted, fontSize: 16, marginBottom: 16, maxWidth: 700 }}>
-        A theoretical framework for using multispectral satellite imagery to detect floating plastic debris
+      <p style={{ color: C.muted, fontSize: 16, marginBottom: 48, maxWidth: 700 }}>
+        A theoretical framework for using multispectral satellite imagery to detect floating plastic debris.
+        <span style={{ color: C.dim, fontSize: 13 }}> This pipeline is conceptual — no operational system exists today. See <a href="#reality-check" style={{ color: C.cyan, textDecoration: 'none' }}>Reality Check</a> for details.</span>
       </p>
-      <div style={{
-        padding: '12px 16px', borderRadius: 8, marginBottom: 48, maxWidth: 700,
-        background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.15)',
-        fontSize: 13, color: C.amber, lineHeight: 1.6,
-      }}>
-        ⚠ The pipeline below is conceptual. No operational system integrating these sensors for plastic flux monitoring has been validated.
-        Current research can detect large floating debris aggregations under ideal conditions — not individual items or microplastics.
-      </div>
 
       {/* Spectral signature chart */}
       <div className="glass-card" style={{ marginBottom: 32 }}>
-        <h4 style={{ fontSize: 16, fontWeight: 600, color: C.white, marginBottom: 16 }}>Spectral Signature Comparison</h4>
-        <p style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>
-          Laboratory measurements show plastic has SWIR absorption features from C-H bond overtones (Garaba & Dierssen 2018).
-          However, these clean lab signatures are significantly degraded in real-world conditions.
-        </p>
-        <div style={{
-          padding: '10px 14px', borderRadius: 6, marginBottom: 16,
-          background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.1)',
-          fontSize: 12, color: C.amber, lineHeight: 1.6,
-        }}>
-          <strong>Key limitations:</strong> Wetting reduces SWIR reflectance by ~56% on average, up to 90% at longer wavelengths.
-          Sargassum, seafoam, driftwood, pumice, and turbid sediment have overlapping SWIR features.
-          At satellite pixel scales (10-20m), plastic signals are diluted by surrounding water, often below detection thresholds.
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: 1 }}>
+            <h4 style={{ fontSize: 16, fontWeight: 600, color: C.white, marginBottom: 8 }}>Spectral Signature Comparison</h4>
+            <p style={{ fontSize: 13, color: C.muted }}>
+              Laboratory measurements show plastic has SWIR absorption features from C-H bond overtones (Garaba &amp; Dierssen 2018).
+            </p>
+          </div>
+          <SolutionCaveat text="Lab conditions only — wetting reduces SWIR reflectance by ~56% (up to 90% at longer wavelengths). Sargassum, seafoam, driftwood, pumice, and turbid sediment have overlapping SWIR features. At 20m pixel scales, plastic signals are diluted below detection thresholds." />
         </div>
         <SpectralChart />
       </div>
@@ -1717,7 +1739,13 @@ Its absence from the sensor stack is a notable gap.`,
         </div>
 
         {/* Expandable issue cards */}
-        <h4 style={{ fontSize: 18, fontWeight: 700, color: C.white, marginBottom: 20 }}>Detailed Analysis (click to expand)</h4>
+        <h4 style={{ fontSize: 18, fontWeight: 700, color: C.white, marginBottom: 8 }}>Detailed Critical Analysis</h4>
+        <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 20, maxWidth: 800 }}>
+          The items below critique specific claims made on this page — the detection indices, sensor capabilities,
+          data conversion pipeline, and uncertainty quantification. Each issue is graded by severity: how much it
+          undermines the scientific credibility of the monitoring system as presented. Click any item to expand the
+          full analysis with references.
+        </p>
         <div style={{ display: 'grid', gap: 10 }}>
           {issues.map((issue, i) => (
             <div key={i} className="glass-card" style={{
