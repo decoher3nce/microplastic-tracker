@@ -221,12 +221,29 @@ const DEPTH_STAGES = [
 ]
 
 const SENSORS = [
-  { name: 'Sentinel-2A/B', detect: 'NIR/SWIR plastic detection', res: '10m', revisit: '5 days', color: '#4fc3f7' },
-  { name: 'PACE/OCI', detect: 'Ocean color microplastic proxy', res: '1km', revisit: '2 days', color: '#81c784' },
-  { name: 'Sentinel-3 OLCI', detect: 'Sea surface spectral anomaly', res: '300m', revisit: '1 day', color: '#ffb74d' },
-  { name: 'MODIS', detect: 'Large-scale debris patterns', res: '250m', revisit: '1-2 days', color: '#e57373' },
-  { name: 'JRC Surface Water', detect: 'River flow path modeling', res: '30m', revisit: 'Monthly', color: '#9575cd' },
-  { name: 'Dynamic World', detect: 'Land use source correlation', res: '10m', revisit: '2-3 days', color: '#4db6ac' },
+  { name: 'Sentinel-2A/B', detect: 'Floating debris detection (FDI)', res: '10-20m', revisit: '5 days', color: '#4fc3f7',
+    caveat: 'SWIR bands at 20m, not 10m. Can detect large macroplastic aggregations only — not individual items or microplastics. Minimum detectable target ~5×5m.' },
+  { name: 'PACE/OCI', detect: 'Ocean color (phytoplankton/aerosol)', res: '1km', revisit: '2 days', color: '#81c784',
+    caveat: 'Designed for phytoplankton and aerosols, not plastic. 1km resolution is far too coarse for debris detection. No validated microplastic proxy method exists.' },
+  { name: 'Sentinel-3 OLCI', detect: 'Sea surface spectral anomaly', res: '300m', revisit: '1 day', color: '#ffb74d',
+    caveat: '300m pixels average over large areas. Could identify large-scale anomalies but cannot distinguish plastic from algae, foam, or sediment.' },
+  { name: 'MODIS', detect: 'Large-scale pattern context', res: '250m-1km', revisit: '1-2 days', color: '#e57373',
+    caveat: 'Useful for broad environmental context (SST, chlorophyll) but lacks spatial and spectral resolution for plastic detection.' },
+  { name: 'JRC Surface Water', detect: 'River flow path modeling', res: '30m', revisit: 'Monthly', color: '#9575cd',
+    caveat: 'Valuable for water mask generation and river delineation. Not a detection sensor — provides supporting spatial context.' },
+  { name: 'Dynamic World', detect: 'Land use source correlation', res: '10m', revisit: '2-3 days', color: '#4db6ac',
+    caveat: 'Land cover classification product. Useful for upstream source attribution but does not detect plastic directly.' },
+]
+
+const REFERENCES = [
+  { id: 'biermann2020', short: 'Biermann et al. 2020', full: 'Biermann, L., et al. "Finding Plastic Patches in Coastal Waters using Optical Satellite Data." Scientific Reports 10, 5364 (2020).' },
+  { id: 'garaba2018', short: 'Garaba & Dierssen 2018', full: 'Garaba, S.P. & Dierssen, H.M. "An airborne remote sensing case study of synthetic hydrocarbon detection using short wave infrared absorption features." Remote Sensing of Environment 209, 48–58 (2018).' },
+  { id: 'topouzelis2019', short: 'Topouzelis et al. 2019', full: 'Topouzelis, K., et al. "Detection of floating plastics from satellite and unmanned aerial systems (Plastic Litter Project 2018)." Int. J. Applied Earth Observation 79, 175–183 (2019).' },
+  { id: 'themistocleous2020', short: 'Themistocleous et al. 2020', full: 'Themistocleous, K., et al. "Investigating Detection of Floating Plastic Litter from Space Using Sentinel-2 Imagery." Remote Sensing 12(16), 2648 (2020).' },
+  { id: 'meijer2021', short: 'Meijer et al. 2021', full: 'Meijer, L.J.J., et al. "More than 1000 rivers account for 80% of global riverine plastic emissions into the ocean." Science Advances 7(18), eaaz5803 (2021).' },
+  { id: 'gao1996', short: 'Gao 1996', full: 'Gao, B. "NDWI — A normalized difference water index for remote sensing of vegetation liquid water from space." Remote Sensing of Environment 58(3), 257–266 (1996).' },
+  { id: 'marye2025', short: 'Marye et al. 2025', full: 'Marye, A., et al. "Remote Sensing for Monitoring Macroplastics in Rivers: A Review." WIREs Water (2025).' },
+  { id: 'lebreton2017', short: 'Lebreton et al. 2017', full: 'Lebreton, L.C.M., et al. "River plastic emissions to the world\'s oceans." Nature Communications 8, 15611 (2017).' },
 ]
 
 // ─── HOOKS ───
@@ -271,6 +288,7 @@ function Nav() {
   const links = [
     { label: 'Problem', href: '#problem' },
     { label: 'Solution', href: '#solution' },
+    { label: 'Reality Check', href: '#reality-check' },
     { label: 'Dashboard', href: '#dashboard' },
     { label: 'Impact', href: '#impact' },
   ]
@@ -369,13 +387,27 @@ function HeroSection() {
         opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(40px)',
         transition: 'all 1.2s ease',
       }}>
+        {/* Concept banner */}
+        <div style={{
+          display: 'inline-block', padding: '8px 20px', borderRadius: 8,
+          background: 'rgba(244,162,97,0.12)', border: '1px solid rgba(244,162,97,0.3)',
+          fontSize: 13, fontWeight: 600, color: C.amber, marginBottom: 20,
+          maxWidth: 700, lineHeight: 1.6,
+        }}>
+          ⚠ CONCEPT DEMONSTRATION — This page visualizes a <em>theoretical future capability</em>.
+          The satellite monitoring pipeline, flux estimates, and dashboard data shown are simulated.
+          No operational satellite-based plastic flux monitoring system exists today.
+          <span style={{ display: 'block', marginTop: 4, fontSize: 12, color: C.dim }}>
+            See "Scientific Reality Check" section for detailed analysis of current capabilities and limitations.
+          </span>
+        </div>
         <div style={{
           display: 'inline-block', padding: '6px 16px', borderRadius: 20,
           background: 'rgba(0,180,216,0.1)', border: '1px solid rgba(0,180,216,0.2)',
           fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
           color: C.cyan, marginBottom: 24,
         }}>
-          Satellite Spectral Intelligence Platform
+          Concept · Satellite Spectral Intelligence
         </div>
         <h1 style={{
           fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 800, lineHeight: 1.1,
@@ -388,9 +420,15 @@ function HeroSection() {
         </h1>
         <p style={{
           fontSize: 'clamp(16px, 2vw, 20px)', color: C.muted, maxWidth: 700,
-          lineHeight: 1.6, marginBottom: 48,
+          lineHeight: 1.6, marginBottom: 16,
         }}>
-          Tracing 11 million tons of plastic from source to sea using satellite spectral intelligence
+          A concept for tracing 11 million tons of plastic from source to sea using satellite spectral intelligence
+        </p>
+        <p style={{
+          fontSize: 'clamp(13px, 1.5vw, 15px)', color: C.amber, maxWidth: 600,
+          lineHeight: 1.6, marginBottom: 48, fontStyle: 'italic',
+        }}>
+          The problem is real. The monitoring vision shown here represents where the science could go — not where it is today.
         </p>
 
         <div style={{
@@ -783,6 +821,11 @@ function SensorCard({ sensor, index, visible }) {
           <span style={{ color: C.dim }}>Res: <span style={{ color: C.white }}>{sensor.res}</span></span>
           <span style={{ color: C.dim }}>Revisit: <span style={{ color: C.white }}>{sensor.revisit}</span></span>
         </div>
+        {sensor.caveat && (
+          <div style={{ fontSize: 11, color: C.amber, marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
+            ⚠ {sensor.caveat}
+          </div>
+        )}
       </div>
       <svg width={sparkW} height={sparkH} style={{ flexShrink: 0 }}>
         <path d={sparkPath} fill="none" stroke={sensor.color} strokeWidth="1.5" opacity="0.7" />
@@ -794,11 +837,17 @@ function SensorCard({ sensor, index, visible }) {
 function DetectionPipeline() {
   const [ref, visible] = useScrollReveal()
   const steps = [
-    { num: 1, title: 'Capture Multispectral Image', desc: 'Acquire 13-band image of river segment at 10m resolution', visual: 'grid' },
-    { num: 2, title: 'Apply NDPI Classification', desc: 'NDPI = (NIR - SWIR) / (NIR + SWIR) → Threshold > 0.15 = plastic', visual: 'formula' },
-    { num: 3, title: 'Temporal Stacking', desc: 'Overlay 30+ dates to track movement vectors and accumulation zones', visual: 'stack' },
-    { num: 4, title: 'Source Attribution', desc: 'Correlate detections with upstream land use and discharge points', visual: 'attr' },
-    { num: 5, title: 'Ocean Handoff', desc: 'Track plastic plume dispersal into coastal waters via current models', visual: 'ocean' },
+    { num: 1, title: 'Capture Multispectral Image', desc: 'Acquire Sentinel-2 image — visible bands at 10m, SWIR at 20m resolution', visual: 'grid',
+      caveat: 'SWIR bands critical for plastic discrimination are 20m, not 10m. Many rivers are narrower than 20m, causing mixed-pixel contamination with riverbanks.' },
+    { num: 2, title: 'Apply Floating Debris Index (FDI)', desc: 'FDI (Biermann et al. 2020) measures NIR deviation from Red Edge–SWIR baseline, combined with NDVI to separate vegetation',
+      visual: 'formula',
+      caveat: 'The formula originally shown as "NDPI" — (NIR−SWIR)/(NIR+SWIR) — is actually the NDMI/NDWI (Gao 1996), used for vegetation moisture content. The actual peer-reviewed index for floating plastic is the FDI.' },
+    { num: 3, title: 'Temporal Stacking', desc: 'Overlay multiple dates to track accumulation patterns (where cloud-free imagery is available)', visual: 'stack',
+      caveat: 'Sentinel-2 revisit is 5 days. Cloud cover (especially during monsoon — peak plastic transport) means most events go unobserved. >95% of transport may be missed.' },
+    { num: 4, title: 'Source Attribution', desc: 'Correlate detections with upstream land use (theoretical — requires validated detection first)', visual: 'attr',
+      caveat: 'This step assumes reliable detection in Step 2, which is not yet operational for rivers. Narrow channels, turbidity, shadows, and vegetation create major challenges.' },
+    { num: 5, title: 'Ocean Handoff', desc: 'Track plastic dispersal into coastal waters via ocean current models (theoretical)', visual: 'ocean',
+      caveat: 'Requires coupling satellite detection with hydrodynamic models. No validated end-to-end river-to-ocean tracking system exists.' },
   ]
 
   return (
@@ -820,6 +869,11 @@ function DetectionPipeline() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, color: C.white, fontSize: 15 }}>{step.title}</div>
               <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{step.desc}</div>
+              {step.caveat && (
+                <div style={{ fontSize: 11, color: C.amber, marginTop: 6, lineHeight: 1.5, fontStyle: 'italic', borderTop: '1px solid rgba(244,162,97,0.1)', paddingTop: 6 }}>
+                  ⚠ {step.caveat}
+                </div>
+              )}
             </div>
             {/* Mini visual for each step */}
             <svg width="60" height="40" style={{ flexShrink: 0, opacity: 0.5 }}>
@@ -828,7 +882,7 @@ function DetectionPipeline() {
                   fill={Math.random() > 0.7 ? C.coral : C.blue} opacity={0.3 + Math.random() * 0.5} />
               ))}
               {step.visual === 'formula' && (
-                <text x="30" y="25" textAnchor="middle" fill={C.cyan} fontSize="8" fontFamily="monospace">NDPI&gt;0.15</text>
+                <text x="30" y="25" textAnchor="middle" fill={C.cyan} fontSize="8" fontFamily="monospace">FDI+NDVI</text>
               )}
               {step.visual === 'stack' && [0,1,2].map(j => (
                 <rect key={j} x={5 + j * 4} y={5 + j * 5} width="45" height="20" rx="3" fill="none" stroke={C.cyan} opacity={0.3 + j * 0.2} />
@@ -869,16 +923,34 @@ function SolutionSection() {
       <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 16, color: C.white }}>
         Satellite Spectral Monitoring
       </h2>
-      <p style={{ color: C.muted, fontSize: 16, marginBottom: 48, maxWidth: 700 }}>
-        Using multispectral satellite imagery to detect, track, and attribute microplastic pollution at continental scale
+      <p style={{ color: C.muted, fontSize: 16, marginBottom: 16, maxWidth: 700 }}>
+        A theoretical framework for using multispectral satellite imagery to detect floating plastic debris
       </p>
+      <div style={{
+        padding: '12px 16px', borderRadius: 8, marginBottom: 48, maxWidth: 700,
+        background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.15)',
+        fontSize: 13, color: C.amber, lineHeight: 1.6,
+      }}>
+        ⚠ The pipeline below is conceptual. No operational system integrating these sensors for plastic flux monitoring has been validated.
+        Current research can detect large floating debris aggregations under ideal conditions — not individual items or microplastics.
+      </div>
 
       {/* Spectral signature chart */}
       <div className="glass-card" style={{ marginBottom: 32 }}>
         <h4 style={{ fontSize: 16, fontWeight: 600, color: C.white, marginBottom: 16 }}>Spectral Signature Comparison</h4>
-        <p style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>
-          Plastic has unique reflectance peaks in SWIR bands (1600-2200nm) that distinguish it from water and vegetation
+        <p style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>
+          Laboratory measurements show plastic has SWIR absorption features from C-H bond overtones (Garaba & Dierssen 2018).
+          However, these clean lab signatures are significantly degraded in real-world conditions.
         </p>
+        <div style={{
+          padding: '10px 14px', borderRadius: 6, marginBottom: 16,
+          background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.1)',
+          fontSize: 12, color: C.amber, lineHeight: 1.6,
+        }}>
+          <strong>Key limitations:</strong> Wetting reduces SWIR reflectance by ~56% on average, up to 90% at longer wavelengths.
+          Sargassum, seafoam, driftwood, pumice, and turbid sediment have overlapping SWIR features.
+          At satellite pixel scales (10-20m), plastic signals are diluted by surrounding water, often below detection thresholds.
+        </div>
         <SpectralChart />
       </div>
 
@@ -1106,9 +1178,25 @@ function DashboardSection() {
       }}>
         River Dashboard
       </div>
-      <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 32, color: C.white }}>
+      <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 16, color: C.white }}>
         River Time-Series Analysis
       </h2>
+      <div style={{
+        padding: '14px 18px', borderRadius: 8, marginBottom: 32,
+        background: 'rgba(244,162,97,0.08)', border: '1px solid rgba(244,162,97,0.2)',
+        fontSize: 13, color: C.amber, lineHeight: 1.7, maxWidth: 900,
+      }}>
+        <strong>⚠ SIMULATED DATA</strong> — All time-series data, flux values, and trends shown below are simulated to illustrate
+        what a future monitoring dashboard <em>could</em> look like. The annual tonnage baselines are drawn from waste-generation
+        models (Meijer et al. 2021; Lebreton et al. 2017), <em>not</em> satellite measurements.
+        <br/><br/>
+        <strong>On the confidence intervals:</strong> The shaded bands shown are cosmetic (±12-20% of signal). Real uncertainty
+        in any satellite-derived plastic flux estimate would span <strong>1-2 orders of magnitude</strong> (10-100×) due to
+        compounding unknowns in sub-pixel detection, mass conversion, temporal sampling, and the fact that most plastic is subsurface and invisible to optical sensors.
+        <br/><br/>
+        <strong>On the tonnage values:</strong> No validated method exists to convert satellite spectral detections to "tons/month."
+        The conversion requires a chain of poorly constrained assumptions — each multiplying uncertainty.
+      </div>
 
       {/* River selector tabs */}
       <div style={{
@@ -1153,10 +1241,10 @@ function DashboardSection() {
         </div>
         <TimeSeriesChart data={data} river={river} />
         <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: 11, color: C.dim, flexWrap: 'wrap' }}>
-          <span>— Detected plastic load</span>
+          <span>— Simulated plastic load</span>
           <span style={{ color: C.dim }}>--- Trend line</span>
           <span><span style={{ color: C.amber }}>▲</span> Event marker (hover for details)</span>
-          <span>Shaded area = confidence interval</span>
+          <span>Shaded area = illustrative CI (actual uncertainty is 10-100× wider)</span>
         </div>
       </div>
 
@@ -1385,13 +1473,16 @@ function YourRiverImpact() {
         textAlign: 'center', padding: 32,
       }}>
         <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.8 }}>
-          If monitoring begins today on the <span style={{ color: C.cyan, fontWeight: 700 }}>{river.name}</span>,
-          we can identify pollution sources within <span style={{ color: C.amber, fontWeight: 700 }}>3 months</span> and
-          reduce plastic flow by <span style={{ color: C.green, fontWeight: 700 }}>{reductionPct}%</span> within
-          <span style={{ color: C.green, fontWeight: 700 }}> 2 years</span>.
+          <strong style={{ color: C.amber }}>Theoretical scenario:</strong> If satellite monitoring of the <span style={{ color: C.cyan, fontWeight: 700 }}>{river.name}</span> could
+          achieve operational detection capability, pollution sources <em>might</em> be identifiable within <span style={{ color: C.amber, fontWeight: 700 }}>months</span>,
+          potentially enabling a <span style={{ color: C.green, fontWeight: 700 }}>{reductionPct}%</span> reduction
+          over <span style={{ color: C.green, fontWeight: 700 }}>several years</span> — if coupled with on-the-ground intervention.
         </div>
         <div style={{ marginTop: 16, fontSize: 13, color: C.dim }}>
-          That&apos;s {((river.annualTons * reductionPct / 100) / 1000).toFixed(1)}K fewer tons of plastic reaching the {river.oceanBasin} annually
+          That would represent ~{((river.annualTons * reductionPct / 100) / 1000).toFixed(1)}K fewer tons reaching the {river.oceanBasin} annually (based on Meijer et al. 2021 model estimates)
+        </div>
+        <div style={{ marginTop: 12, fontSize: 12, color: C.amber, fontStyle: 'italic' }}>
+          Note: These projections assume detection capabilities that do not yet exist at the required precision.
         </div>
       </div>
     </div>
@@ -1413,13 +1504,289 @@ function ImpactSection() {
       }}>
         Impact & Action
       </div>
-      <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 48, color: C.white }}>
-        What We Can Achieve
+      <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 16, color: C.white }}>
+        What We Could Achieve
       </h2>
+      <div style={{
+        padding: '12px 16px', borderRadius: 8, marginBottom: 48, maxWidth: 800,
+        background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.15)',
+        fontSize: 13, color: C.amber, lineHeight: 1.6,
+      }}>
+        ⚠ The intervention estimates below are drawn from policy and engineering literature, not satellite-verified outcomes.
+        The connection between satellite monitoring and intervention effectiveness shown here is aspirational, not demonstrated.
+      </div>
 
       <InterventionModeling />
       <AccountabilityChain />
       <YourRiverImpact />
+    </section>
+  )
+}
+
+// ─── SCIENTIFIC REALITY CHECK ───
+
+function RealityCheckSection() {
+  const [ref, visible] = useScrollReveal()
+  const [expandedItem, setExpandedItem] = useState(null)
+
+  const issues = [
+    {
+      title: '1. The "NDPI" Is Actually a Vegetation Moisture Index',
+      severity: 'critical',
+      summary: 'The formula (NIR−SWIR)/(NIR+SWIR) is the NDMI/NDWI (Gao 1996) for vegetation water content — not a plastic index.',
+      detail: `The formula originally presented on this page as "NDPI" is the well-established Normalized Difference Moisture Index (NDMI), published by Gao in 1996 to measure vegetation water content. It has been used for decades in drought monitoring and crop health assessment.
+
+The actual peer-reviewed indices for floating plastic detection are:
+• FDI (Floating Debris Index) — Biermann et al. 2020: Uses Red Edge, NIR, and SWIR bands to measure NIR deviation from an interpolated baseline
+• PI (Plastic Index) — Themistocleous et al. 2020: Uses Red and NIR bands
+• NDVI is used in combination with FDI to separate plastics from vegetation (plastics have low NDVI)
+
+Applying NDMI to water surfaces and calling it "NDPI" conflates unrelated science.`,
+    },
+    {
+      title: '2. Sentinel-2 Cannot Detect Microplastics',
+      severity: 'critical',
+      summary: 'SWIR bands are 20m resolution (not 10m). Microplastics (<5mm) are physically undetectable. Only large macroplastic aggregations (≥5×5m) can be identified.',
+      detail: `Sentinel-2's SWIR bands (B11 at 1610nm, B12 at 2190nm) are at 20m resolution, not 10m. Only visible and broad NIR bands are 10m.
+
+The Plastic Litter Project (Topouzelis et al. 2019) deployed artificial 10×10m and 5×5m targets — a 5×5m target occupies ~6% of a 20m SWIR pixel, near the detection threshold. Individual microplastic particles (<5mm) are 4,000× smaller than a pixel.
+
+What Sentinel-2 can detect: dense, large aggregations of floating macroplastic that cover a meaningful fraction of a pixel — under clear skies, calm water, and optimal sun angle.`,
+    },
+    {
+      title: '3. Spectral Confusion: Many Materials Look Like Plastic',
+      severity: 'high',
+      summary: 'Sargassum, seafoam, driftwood, pumice, turbid sediment, and algal blooms all have overlapping SWIR signatures. Wetting reduces plastic reflectance by ~56%.',
+      detail: `Laboratory spectroscopy shows plastics have SWIR absorption features from C-H bonds at ~1210nm and ~1430nm (Garaba & Dierssen 2018). However:
+
+• Wetting reduces reflectance by 56% on average, up to 90% in SWIR bands
+• Sargassum, macroalgae, seafoam, whitecaps, pumice, driftwood, and turbid sediment all reflect in NIR/SWIR
+• Different plastic types (PE, PP, PET, PS) have different signatures — there is no single "plastic" curve
+• At satellite pixel scales, plastic signals are diluted by surrounding water below noise thresholds
+• The clean lab-measured curves shown in the spectral chart do not represent real satellite-observable conditions`,
+    },
+    {
+      title: '4. PACE/OCI Was Not Designed for Plastic Detection',
+      severity: 'high',
+      summary: '"Ocean color microplastic proxy" is not an established scientific concept. PACE has 1km resolution — designed for phytoplankton and aerosols.',
+      detail: `PACE's Ocean Color Instrument provides hyperspectral coverage at ~1km resolution. It was designed to study phytoplankton community composition, aerosols, and cloud properties.
+
+No validated method exists to infer microplastic concentrations from ocean color data. Some researchers have explored statistical correlations, but these likely reflect co-occurring processes (convergence zones concentrate both plankton and debris) rather than direct optical detection of plastics.
+
+The term "ocean color microplastic proxy" does not appear in peer-reviewed literature as a validated detection method.`,
+    },
+    {
+      title: '5. The Sensor Fusion Stack Has No Integration Framework',
+      severity: 'high',
+      summary: '6 sensors spanning 10m to 1km resolution with different revisit times and spectral bands. No mathematical framework defines how they combine into a single measurement.',
+      detail: `Fusing data from sensors with 100× resolution differences (10m to 1km) requires explicit mathematical frameworks:
+
+• Resolution mismatch: Upsampling 1km PACE data to 10m creates phantom detail; downsampling destroys the information you need
+• Temporal mismatch: Different revisit times (1-16 days) mean observations are rarely simultaneous. Floating debris moves kilometers in hours
+• Spectral incompatibility: Different spectral bands, response functions, and calibrations require cross-calibration
+• No algorithm defined: The page shows a pipeline without defining how any measurement from one sensor constrains another
+
+Missing entirely: How do you mask river banks? For narrow rivers (<30m wide), most pixels are mixed land-water. The land spectral signal dominates any plastic signal. You need water masks, bank/shadow masking, and sub-pixel unmixing — none of which are described.`,
+    },
+    {
+      title: '6. Converting Spectral Signal to "Tons/Month" Is Not Possible at Claimed Precision',
+      severity: 'critical',
+      summary: 'The conversion requires a chain of poorly constrained assumptions. Cumulative uncertainty: 1-2 orders of magnitude (10-100×).',
+      detail: `Converting a satellite detection to mass flux requires:
+
+1. Spectral signal → sub-pixel plastic fraction (uncertainty: 5-50×)
+2. Fraction → areal density kg/m² (10-100× — thin film vs. thick raft)
+3. Detected area → total area (extrapolation from cloudy/undetected regions)
+4. Snapshot → flux rate (requires flow velocity, residence time)
+5. Single overpass → monthly total (5-day revisit = >95% of events unobserved)
+
+Each step multiplies uncertainty. A satellite estimate of "5,000 tons/month" could plausibly be 500 to 50,000 tons.
+
+The actual river flux literature (Meijer et al. 2021; Lebreton et al. 2017) derives estimates from waste generation statistics and hydrological models — not satellite observations.`,
+    },
+    {
+      title: '7. Confidence Intervals Are Cosmetic',
+      severity: 'high',
+      summary: 'The shaded CI bands (±12-20%) are visual decoration. Real uncertainty would span the entire chart height — 10-100× the signal.',
+      detail: `The dashboard shows narrow, symmetrical confidence intervals as a percentage of the signal. This implies a precision that does not exist.
+
+Real uncertainty in satellite-derived plastic estimates would include:
+• Radiometric calibration: ~3-5% (the smallest contributor)
+• Atmospheric correction: 5-15% (variable)
+• Sub-pixel detection probability: unknown — could be 0% for sparse plastics
+• Mass conversion: 1-2 orders of magnitude
+• Temporal sampling: sparse revisit means most transport is unobserved
+• Subsurface plastic: ~99% of ocean plastic is below the surface and invisible to optical sensors
+
+No methodology is given for how the intervals are calculated because no validated methodology exists.`,
+    },
+    {
+      title: '8. River Detection Is Much Harder Than Open Ocean',
+      severity: 'high',
+      summary: 'Many listed rivers are narrower than satellite pixels. Turbidity, vegetation, shadows, bridges, and monsoon clouds create severe detection challenges.',
+      detail: `River environments present substantially greater challenges than open ocean (Marye et al. 2025):
+
+• The Pasig River (27km long) is roughly 70m wide in places — just 3-4 SWIR pixels across, with bank contamination on both edges
+• Tropical rivers have high turbidity that masks plastic signals
+• Dense riparian vegetation creates shadows and obscures the water surface
+• Urban rivers have bridges, boats, and infrastructure creating spectral confusion
+• Monsoon season (when plastic transport peaks) has the highest cloud cover — meaning fewest satellite observations during the most important period
+• The clean seasonal curves shown in the dashboard would actually have large gaps and high noise`,
+    },
+    {
+      title: '9. No Independent Field Validation',
+      severity: 'high',
+      summary: 'Field validation relies on controlled experiments with artificial targets (Topouzelis et al. 2019), not real-world plastic pollution. No large-scale validation campaign exists.',
+      detail: `Field validation for satellite-based plastic detection is extremely limited:
+
+• The Plastic Litter Projects (2018-2021) deployed artificial targets of known size synchronized with satellite overpasses. These demonstrated detection of dense, large aggregations — far from natural conditions.
+• Reported detection accuracies (86-94%) are for large, obvious targets, not dispersed river pollution
+• No standardized monitoring protocols exist for matching satellite observations with in-situ sampling
+• Most validation uses drone imagery as intermediate ground truth rather than direct physical sampling
+• There is no large-scale, systematic validation comparing satellite estimates with comprehensive field surveys
+
+Without ground truth, the dashboard values cannot be verified.`,
+    },
+    {
+      title: '10. Missing: CALIPSO and Lidar Approaches',
+      severity: 'moderate',
+      summary: 'CALIPSO (ended 2023) used lidar that could theoretically distinguish plastic via depolarization. This promising approach is absent from the sensor stack.',
+      detail: `CALIPSO's CALIOP instrument measured backscatter at 532nm and 1064nm. Lidar has advantages over passive sensors: it works day/night, at low solar angles, and provides depth-resolved information.
+
+While CALIPSO was never operationally used for plastic detection, lidar depolarization ratios could theoretically distinguish plastic particles from marine biota. This approach — or its successors (ATLID on EarthCARE, ICESat-2) — represents a potentially more promising path than passive SWIR spectral detection for sub-surface and dispersed plastics.
+
+Its absence from the sensor stack is a notable gap.`,
+    },
+  ]
+
+  const severityColors = { critical: C.red, high: C.coral, moderate: C.amber }
+
+  return (
+    <section id="reality-check" style={{
+      padding: '80px 32px', maxWidth: 960, margin: '0 auto',
+    }}>
+      <div style={{
+        display: 'inline-block', padding: '6px 16px', borderRadius: 20,
+        background: 'rgba(244,162,97,0.1)', border: '1px solid rgba(244,162,97,0.2)',
+        fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
+        color: C.amber, marginBottom: 16,
+      }}>
+        Scientific Reality Check
+      </div>
+      <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, marginBottom: 16, color: C.white }}>
+        What the Science Actually Says
+      </h2>
+      <p style={{ color: C.muted, fontSize: 16, marginBottom: 16, maxWidth: 800, lineHeight: 1.7 }}>
+        The microplastic pollution crisis is real and urgent. However, satellite-based plastic monitoring is still
+        in an <strong style={{ color: C.white }}>early research phase</strong>. The dashboard and detection pipeline shown above represent
+        a <strong style={{ color: C.amber }}>theoretical future capability</strong>, not current operational reality.
+        Below is a critical analysis of the key scientific gaps.
+      </p>
+
+      {/* Summary table */}
+      <div ref={ref} className={`section-reveal ${visible ? 'visible' : ''}`}>
+        <div className="glass-card" style={{ marginBottom: 32, padding: '20px 24px' }}>
+          <h4 style={{ fontSize: 16, fontWeight: 700, color: C.white, marginBottom: 16 }}>Reality vs. Aspiration</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', borderBottom: `1px solid ${C.dim}`, color: C.muted, fontWeight: 600 }}>Claim on This Page</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', borderBottom: `1px solid ${C.dim}`, color: C.muted, fontWeight: 600 }}>Scientific Reality</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Satellite spectral detection of river plastic', 'Large floating macroplastic aggregations can be detected from Sentinel-2 under ideal conditions — not microplastics, not quantitatively'],
+                  ['NDPI formula for plastic detection', 'This formula is NDMI for vegetation moisture (Gao 1996). Actual plastic index is FDI (Biermann et al. 2020)'],
+                  ['Sentinel-2 at 10m detects plastic', 'SWIR bands critical for plastic are 20m. Microplastics are undetectable.'],
+                  ['PACE detects microplastic proxies', 'No validated method exists. PACE (1km res) was designed for phytoplankton/aerosols.'],
+                  ['6-sensor fusion stack', 'No integration methodology defined. Sensors have incompatible resolutions and revisit times.'],
+                  ['Plastic flux in tons/month', 'No validated conversion exists. Uncertainty is 1-2 orders of magnitude (10-100×).'],
+                  ['Narrow confidence intervals', 'Real uncertainty would span the entire chart. The bands shown are cosmetic.'],
+                  ['River tonnage estimates', 'Real numbers from waste models (Meijer et al. 2021) — not satellite measurements.'],
+                ].map(([claim, reality], i) => (
+                  <tr key={i}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: C.coral }}>{claim}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: C.muted }}>{reality}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Expandable issue cards */}
+        <h4 style={{ fontSize: 18, fontWeight: 700, color: C.white, marginBottom: 20 }}>Detailed Analysis (click to expand)</h4>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {issues.map((issue, i) => (
+            <div key={i} className="glass-card" style={{
+              padding: 0, cursor: 'pointer', overflow: 'hidden',
+              borderLeft: `3px solid ${severityColors[issue.severity]}`,
+            }}
+              onClick={() => setExpandedItem(expandedItem === i ? null : i)}
+            >
+              <div style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: C.white, fontSize: 15, marginBottom: 4 }}>{issue.title}</div>
+                    <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>{issue.summary}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
+                      padding: '3px 8px', borderRadius: 4,
+                      background: `${severityColors[issue.severity]}15`,
+                      color: severityColors[issue.severity],
+                    }}>
+                      {issue.severity}
+                    </span>
+                    <span style={{ color: C.dim, fontSize: 18, transition: 'transform 0.2s', transform: expandedItem === i ? 'rotate(180deg)' : 'rotate(0)' }}>
+                      ▾
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {expandedItem === i && (
+                <div style={{
+                  padding: '0 18px 16px', borderTop: '1px solid rgba(255,255,255,0.05)',
+                  fontSize: 13, color: C.muted, lineHeight: 1.8, whiteSpace: 'pre-line',
+                }}>
+                  <div style={{ paddingTop: 14 }}>{issue.detail}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* What IS real */}
+        <div className="glass-card" style={{
+          marginTop: 32, padding: '24px',
+          background: 'linear-gradient(135deg, rgba(0,214,143,0.06), rgba(0,119,182,0.06))',
+          borderLeft: `3px solid ${C.green}`,
+        }}>
+          <h4 style={{ fontSize: 16, fontWeight: 700, color: C.green, marginBottom: 12 }}>What IS Real</h4>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
+            <div style={{ marginBottom: 8 }}>✓ <strong style={{ color: C.white }}>The plastic pollution crisis is real</strong> — 8-11 million tons enter oceans annually (estimates from Jambeck et al. 2015; Lebreton et al. 2017)</div>
+            <div style={{ marginBottom: 8 }}>✓ <strong style={{ color: C.white }}>Rivers are the primary pathway</strong> — ~80% of ocean plastic enters via rivers (Meijer et al. 2021)</div>
+            <div style={{ marginBottom: 8 }}>✓ <strong style={{ color: C.white }}>Satellite detection of large floating debris is demonstrated</strong> — under controlled conditions and at aggregation scales ≥5×5m (Topouzelis et al. 2019; Biermann et al. 2020)</div>
+            <div style={{ marginBottom: 8 }}>✓ <strong style={{ color: C.white }}>River interventions are effective</strong> — trash traps, waste infrastructure, and policy enforcement work independently of satellite monitoring</div>
+            <div>✓ <strong style={{ color: C.white }}>The vision is worth pursuing</strong> — improved satellite sensors (hyperspectral, lidar), AI classification, and ground-truth networks could make this concept closer to reality</div>
+          </div>
+        </div>
+
+        {/* References */}
+        <div style={{ marginTop: 32 }}>
+          <h4 style={{ fontSize: 16, fontWeight: 700, color: C.white, marginBottom: 16 }}>References</h4>
+          <div style={{ fontSize: 12, color: C.dim, lineHeight: 2 }}>
+            {REFERENCES.map((ref, i) => (
+              <div key={i} style={{ paddingLeft: 16, textIndent: -16 }}>
+                [{i + 1}] {ref.full}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
@@ -1436,11 +1803,19 @@ function Footer() {
       <div style={{ fontSize: 14, fontWeight: 600, color: C.cyan, marginBottom: 16 }}>
         Microplastic River-to-Ocean Tracking System
       </div>
+      <div style={{
+        fontSize: 13, color: C.amber, maxWidth: 600, margin: '0 auto 16px', lineHeight: 1.6,
+        padding: '10px 16px', borderRadius: 8,
+        background: 'rgba(244,162,97,0.06)', border: '1px solid rgba(244,162,97,0.15)',
+      }}>
+        This is a concept demonstration. All dashboard data is simulated. The satellite monitoring pipeline
+        represents aspirational future capability, not current operational reality.
+      </div>
       <div style={{ fontSize: 12, color: C.dim, maxWidth: 600, margin: '0 auto', lineHeight: 1.8 }}>
-        Data sources: Copernicus Open Access Hub · NASA EarthData · Google Earth Engine · JRC Global Surface Water
+        Sensor references: Copernicus Open Access Hub · NASA EarthData · Google Earth Engine · JRC Global Surface Water
       </div>
       <div style={{ fontSize: 12, color: C.dim, marginTop: 8 }}>
-        Built with open satellite data. All sensor data referenced is freely available.
+        Sensor data referenced is freely available. Tonnage estimates from Meijer et al. 2021 and Lebreton et al. 2017.
       </div>
       <div style={{ fontSize: 12, color: C.muted, marginTop: 16 }}>
         Part of the <span style={{ color: C.cyan }}>Spectral Solutions Atlas</span>
@@ -1460,6 +1835,8 @@ export default function App() {
       <ProblemSection />
       <div className="gradient-divider" />
       <SolutionSection />
+      <div className="gradient-divider" />
+      <RealityCheckSection />
       <div className="gradient-divider" />
       <DashboardSection />
       <div className="gradient-divider" />
